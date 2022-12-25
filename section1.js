@@ -1,20 +1,18 @@
-function calculate(grandTotal, couponDiscountPercentage, taxRate) {
-  let basePrice = Math.floor(grandTotal - grandTotal * (taxRate / 100));
-  let couponDiscount = Math.floor(
-    basePrice - basePrice * (couponDiscountPercentage / 100)
-  );
-  let taxAmount = Math.floor(grandTotal - basePrice);
-  let couponDiscountAmount = Math.floor(basePrice - couponDiscount);
-  let subTotal = basePrice + taxAmount + couponDiscountAmount;
-  let dis = {};
-  dis["basePrice"] = basePrice;
-  dis["grandTotal"] = grandTotal;
-  dis["couponDiscountPercentage"] = couponDiscountPercentage;
-  dis["couponDiscountAmount"] = couponDiscountAmount;
-  dis["taxRate"] = taxRate;
-  dis["taxAmount"] = taxAmount;
-  dis["subTotal"] = subTotal;
-  console.log(dis);
-}
+const total = 1079;
+const taxRate = 0.18;
+const couponDiscountPercentage = 0.1;
 
-calculate(1079, 10, 18);
+const basePrice = Math.floor(total / (1 + taxRate));
+const couponDiscountAmount = Math.floor(basePrice * couponDiscountPercentage);
+const subtotal = Math.floor(basePrice - couponDiscountAmount);
+const taxAmount = Math.floor(subtotal * taxRate);
+
+console.log({
+  basePrice: basePrice,
+  couponDiscountPercentage: 10,
+  couponDiscountAmount: couponDiscountAmount,
+  subtotal: subtotal,
+  taxRate: 18,
+  taxAmount: taxAmount,
+  grandTotal: 1079,
+});
