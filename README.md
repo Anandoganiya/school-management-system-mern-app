@@ -9,5 +9,8 @@ SECRET_TOKEN
 After that run this command
 
 ```bash
+cd client
+npm install && npm run dev
+cd server
 npm install && npm run dev
 ```
