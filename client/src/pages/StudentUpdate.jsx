@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import AppBar from "@mui/material/AppBar";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
@@ -6,9 +6,10 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import StudentList from "../components/StudentList";
 import Button from "@mui/material/Button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import axios from "axios";
+import { authContext } from "../context/AuthContext";
 
 const theme = createTheme();
 
@@ -23,7 +24,10 @@ const StudentAdd = () => {
   const [address, setAddress] = useState("");
   const [error, setError] = useState(false);
   const navigator = useNavigate();
-  const handleStudentAdd = (e) => {
+  const { authUser } = useContext(authContext);
+  const [searchParams] = useSearchParams();
+  const eId = searchParams.get("emailId");
+  const handleStudentAdd = async (e) => {
     e.preventDefault();
     if (
       !name ||
@@ -49,20 +53,74 @@ const StudentAdd = () => {
       address,
     };
     console.log(student);
+    try {
+      const res = await axios.patch(
+        "http://localhost:5000/student/updateStudent",
+        { ...student, emailId: eId },
+        {
+          headers: {
+            Authorization: `Bearer ${authUser.accessToken}`,
+          },
+        }
+      );
+
+      navigator("/");
+    } catch (error) {
+      console.log(error.response.data);
+    }
     navigator("/");
     setError(false);
   };
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios.post(
+          "http://localhost:5000/student/getStudent",
+          { emailId: eId },
+          {
+            headers: {
+              Authorization: `Bearer ${authUser.accessToken}`,
+            },
+          }
+        );
+        const {
+          name,
+          sClass,
+          age,
+          email,
+          rollNumber,
+          section,
+          mobile,
+          address,
+        } = res.data.students;
+        setName(name);
+        setClass(sClass);
+        setAge(age);
+        setEmail(email);
+        setRollNumber(rollNumber);
+        setSection(section);
+        setMobile(mobile);
+        setAddress(address);
+        console.log(res.data.students);
+      } catch (error) {
+        console.log(error.response.data);
+      }
+    })();
+  }, []);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
 
       <AppBar position="relative">
         <Toolbar>
-          <Typography variant="h6" color="inherit" noWrap>
+          <div className="flex justify-between w-full items-center">
             <Button href="/" color="inherit">
-              DashBoard
+              <Typography variant="h6" color="inherit" noWrap>
+                DashBoard
+              </Typography>
             </Button>
-          </Typography>
+            <div>{authUser?.user?.email}</div>
+          </div>
         </Toolbar>
       </AppBar>
       <main>
@@ -98,6 +156,7 @@ const StudentAdd = () => {
                   <div className="relative flex-grow w-full">
                     <input
                       onChange={(e) => setName(e.target.value)}
+                      value={name}
                       placeholder="Name"
                       type="text"
                       id="full-name"
@@ -108,6 +167,7 @@ const StudentAdd = () => {
                   <div className="relative flex-grow w-full">
                     <input
                       onChange={(e) => setAge(e.target.value)}
+                      value={age}
                       placeholder="Age"
                       type="text"
                       id="age"
@@ -120,6 +180,7 @@ const StudentAdd = () => {
                   <div className="relative flex-grow w-full">
                     <input
                       onChange={(e) => setEmail(e.target.value)}
+                      value={email}
                       placeholder="Email"
                       type="text"
                       id="email"
@@ -132,6 +193,7 @@ const StudentAdd = () => {
                   <div className="relative flex-grow w-full">
                     <input
                       onChange={(e) => setClass(e.target.value)}
+                      value={sClass}
                       placeholder="Class"
                       type="text"
                       id="class"
@@ -142,6 +204,7 @@ const StudentAdd = () => {
                   <div className="relative flex-grow w-full">
                     <input
                       onChange={(e) => setSection(e.target.value)}
+                      value={section}
                       placeholder="Section"
                       type="text"
                       id="section"
@@ -154,6 +217,7 @@ const StudentAdd = () => {
                   <div className="relative flex-grow w-full">
                     <input
                       onChange={(e) => setRollNumber(e.target.value)}
+                      value={rollNumber}
                       placeholder="Roll-No"
                       type="text"
                       id="rollNumber"
@@ -164,6 +228,7 @@ const StudentAdd = () => {
                   <div className="relative flex-grow w-full">
                     <input
                       onChange={(e) => setMobile(e.target.value)}
+                      value={mobile}
                       placeholder="Mobile"
                       type="text"
                       id="mobile"
@@ -176,6 +241,7 @@ const StudentAdd = () => {
                   <div className="relative flex-grow w-full">
                     <input
                       onChange={(e) => setAddress(e.target.value)}
+                      value={address}
                       placeholder="Address"
                       type="text"
                       id="address"
@@ -186,7 +252,7 @@ const StudentAdd = () => {
                 </div>
               </div>
               <button className="text-white mt-4 bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
-                Button
+                Update
               </button>
             </form>
           </Container>

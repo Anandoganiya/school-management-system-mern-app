@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import AppBar from "@mui/material/AppBar";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
@@ -9,6 +9,8 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import StudentList from "../components/StudentList";
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { authContext } from "../context/AuthContext";
 
 const theme = createTheme();
 
@@ -23,7 +25,8 @@ const StudentAdd = () => {
   const [address, setAddress] = useState("");
   const [error, setError] = useState(false);
   const navigator = useNavigate();
-  const handleStudentAdd = (e) => {
+  const { authUser } = useContext(authContext);
+  const handleStudentAdd = async (e) => {
     e.preventDefault();
     if (
       !name ||
@@ -48,9 +51,23 @@ const StudentAdd = () => {
       mobile,
       address,
     };
-    console.log(student);
-    navigator("/");
-    setError(false);
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/student/addStudent",
+        student,
+        {
+          headers: {
+            Authorization: `Bearer ${authUser.accessToken}`,
+          },
+        }
+      );
+      setError(false);
+      navigator("/");
+    } catch (error) {
+      console.log(error.response.data);
+      // setError(false);
+    }
+    // console.log(student);
   };
   return (
     <ThemeProvider theme={theme}>
@@ -58,11 +75,14 @@ const StudentAdd = () => {
 
       <AppBar position="relative">
         <Toolbar>
-          <Typography variant="h6" color="inherit" noWrap>
+          <div className="flex justify-between w-full items-center">
             <Button href="/" color="inherit">
-              DashBoard
+              <Typography variant="h6" color="inherit" noWrap>
+                DashBoard
+              </Typography>
             </Button>
-          </Typography>
+            <div>{authUser?.user?.email}</div>
+          </div>
         </Toolbar>
       </AppBar>
       <main>
@@ -184,7 +204,7 @@ const StudentAdd = () => {
                 </div>
               </div>
               <button className="text-white mt-4 bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
-                Button
+                Add
               </button>
             </form>
           </Container>

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -7,113 +7,81 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-
-function createData(
-  name,
-  age,
-  sClass,
-  section,
-  rollNo,
-  email,
-  mobile,
-  address,
-  edit,
-  sDelete
-) {
-  return {
-    name,
-    age,
-    sClass,
-    section,
-    rollNo,
-    email,
-    mobile,
-    address,
-    edit,
-    sDelete,
-  };
-}
-
-const rows = [
-  createData(
-    "tommy",
-    30,
-    "history",
-    "A",
-    "12vd32",
-    "tommy@gmail.com",
-    "123453232",
-    "goa",
-    <Button href="/student-update">Edit</Button>,
-    <Button>Delete</Button>
-  ),
-  createData(
-    "tommy",
-    30,
-    "history",
-    "A",
-    "12vd32",
-    "tommy@gmail.com",
-    "123453232",
-    "goa",
-    "edit",
-    "delete"
-  ),
-  createData(
-    "tommy",
-    30,
-    "history",
-    "A",
-    "12vd32",
-    "tommy@gmail.com",
-    "123453232",
-    "goa",
-    "edit",
-    "delete"
-  ),
-  createData(
-    "tommy",
-    30,
-    "history",
-    "A",
-    "12vd32",
-    "tommy@gmail.com",
-    "123453232",
-    "goa",
-    "edit",
-    "delete"
-  ),
-  createData(
-    "tommy",
-    30,
-    "history",
-    "A",
-    "12vd32",
-    "tommy@gmail.com",
-    "123453232",
-    "goa",
-    "edit",
-    "delete"
-  ),
-  createData(
-    "tommy",
-    30,
-    "history",
-    "A",
-    "12vd32",
-    "tommy@gmail.com",
-    "123453232",
-    "goa",
-    "edit",
-    "delete"
-  ),
-  //   createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  //   createData("Eclair", 262, 16.0, 24, 6.0),
-  //   createData("Cupcake", 305, 3.7, 67, 4.3),
-  //   createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
+import axios from "axios";
+import { authContext } from "../context/AuthContext";
 
 export default function StudentList() {
+  const { authUser } = useContext(authContext);
+  const [rows, setRows] = useState([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios.post(
+          "http://localhost:5000/student/getAllStudents",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${authUser.accessToken}`,
+            },
+          }
+        );
+        let data = [];
+        res.data.students.forEach((student) => {
+          let edit = (
+            <Button href={`/student-update?emailId=${student.email}`}>
+              Edit
+            </Button>
+          );
+          let sDelete = (
+            <Button onClick={() => handleDelete(student.email)}>Delete</Button>
+          );
+          let s = { ...student, edit, sDelete };
+          data.push(s);
+          rows.push(s);
+        });
+        setRows(data);
+      } catch (error) {
+        console.log(error.response);
+      }
+    })();
+  }, []);
+  const handleDelete = async (email) => {
+    console.log(email);
+    try {
+      await axios.delete("http://localhost:5000/student/deleteStudent", {
+        headers: {
+          Authorization: `Bearer ${authUser.accessToken}`,
+        },
+        data: { emailId: email },
+      });
+      const res = await axios.post(
+        "http://localhost:5000/student/getAllStudents",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${authUser.accessToken}`,
+          },
+        }
+      );
+      let data = [];
+      res.data.students.forEach((student) => {
+        let edit = (
+          <Button href={`/student-update?emailId=${student.email}`}>
+            Edit
+          </Button>
+        );
+        let sDelete = (
+          <Button onClick={() => handleDelete(student.email)}>Delete</Button>
+        );
+        let s = { ...student, edit, sDelete };
+        data.push(s);
+        rows.push(s);
+      });
+      setRows(data);
+    } catch (error) {
+      console.log(error.response);
+    }
+  };
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="student table">
@@ -143,7 +111,7 @@ export default function StudentList() {
               <TableCell align="right">{row.age}</TableCell>
               <TableCell align="right">{row.sClass}</TableCell>
               <TableCell align="right">{row.section}</TableCell>
-              <TableCell align="right">{row.rollNo}</TableCell>
+              <TableCell align="right">{row.rollNumber}</TableCell>
               <TableCell align="right">{row.email}</TableCell>
               <TableCell align="right">{row.mobile}</TableCell>
               <TableCell align="right">{row.address}</TableCell>

@@ -1,17 +1,22 @@
 import { createContext, useState, useEffect } from "react";
 
-const authContext = createContext(null);
+export const authContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
-  const [authUser, setAuthUser] = useState({});
-  //   useEffect(() => {
-  //     (async () => {
-  //       const res = await fetch("http://localhost:5000/auth/login");
-  //     })();
-  //   }, []);
+  const auth = localStorage.getItem("auth")
+    ? JSON.parse(localStorage.getItem("auth"))
+    : {};
+  const [authUser, setAuthUser] = useState(auth);
+  // const auth = JSON.parse(localStorage.getItem("auth"));
+  // useEffect(() => {
+  //   console.log("auth", auth);
+  //   auth ? setAuthUser(local) : null;
+  // }, []);
 
   return (
-    <authContext.Provider value={{ authUser }}>{children}</authContext.Provider>
+    <authContext.Provider value={{ authUser, setAuthUser }}>
+      {children}
+    </authContext.Provider>
   );
 };
 

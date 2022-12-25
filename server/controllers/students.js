@@ -3,6 +3,10 @@ const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, NotFoundError } = require("../errors");
 
 const createStudent = async (req, res) => {
+  console.log(req.body);
+  const { name, age, email, sClass, section, rollNumber, mobile, address } =
+    req.body;
+
   req.body.createdBy = req.user.userId;
   const studentInfo = await Student.create(req.body);
   res.status(StatusCodes.CREATED).json({ studentInfo });
@@ -49,6 +53,7 @@ const updateStudent = async (req, res) => {
 
 const deleteStudent = async (req, res) => {
   const { emailId } = req.body;
+  console.log(emailId);
   if (!emailId)
     return res
       .status(StatusCodes.BAD_REQUEST)

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -12,6 +12,9 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { authContext } from "../context/AuthContext";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
   return (
@@ -34,13 +37,24 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function Regsiter() {
-  const handleSubmit = (event) => {
+  const { authUser, setAuthUser } = useContext(authContext);
+  const [error, setError] = useState("");
+  const navigator = useNavigate();
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    try {
+      const res = await axios.post("http://localhost:5000/auth/register", {
+        email: data.get("email"),
+        password: data.get("password"),
+      });
+      setAuthUser(res.data);
+      setError("");
+      localStorage.setItem("auth", JSON.stringify(res.data));
+      navigator("/");
+    } catch (error) {
+      setError(error.response.data.msg);
+    }
   };
 
   return (
@@ -61,6 +75,7 @@ export default function Regsiter() {
           <Typography component="h1" variant="h5">
             Sign Up
           </Typography>
+          {error && <div className="text-center">{error}</div>}
           <Box
             component="form"
             onSubmit={handleSubmit}

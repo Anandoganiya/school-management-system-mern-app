@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useContext, useState, useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
@@ -8,21 +8,28 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import StudentList from "../components/StudentList";
 import Button from "@mui/material/Button";
+import axios from "axios";
+import { authContext } from "../context/AuthContext";
 
 const theme = createTheme();
 
 export default function Home() {
+  const { authUser } = useContext(authContext);
+  // console.log(authUser.user.email);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
 
       <AppBar position="relative">
         <Toolbar>
-          <Typography variant="h6" color="inherit" noWrap>
+          <div className="flex justify-between w-full items-center">
             <Button href="/" color="inherit">
-              DashBoard
+              <Typography variant="h6" color="inherit" noWrap>
+                DashBoard
+              </Typography>
             </Button>
-          </Typography>
+            <div>{authUser?.user?.email}</div>
+          </div>
         </Toolbar>
       </AppBar>
       <main>

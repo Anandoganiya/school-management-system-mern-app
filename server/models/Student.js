@@ -6,15 +6,19 @@ const StudentSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide name"],
     },
-    class: {
+    sClass: {
       type: String,
       required: [true, "Please provide class"],
+    },
+    age: {
+      type: Number,
+      required: [true, "Please provide age"],
     },
     section: {
       type: String,
       required: [true, "Please provide section"],
     },
-    rollnumber: {
+    rollNumber: {
       type: String,
       required: [true, "Please provide rollnumber"],
     },
